@@ -1,0 +1,62 @@
+---
+title: "R Bridge Final"
+author: "Ken Howes"
+date: "August 6, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## install.packages("hflights")
+## This dataset contains all flights departing from Houston airports IAH (George Bush Intercontinental) and HOU (Houston Hobby).
+
+
+```{r}
+library(hflights)
+library(ggplot2)
+library(gcookbook)
+```
+
+## Explore the Dataset
+```{r}
+dim(hflights)
+str(hflights)
+head(hflights)
+summary(hflights)
+
+table(hflights$UniqueCarrier)
+```
+
+## Create a subset of columns and explore data further
+
+```{r}
+hflights2 <- subset(hflights, ,select=c(UniqueCarrier, ArrDelay, DepDelay))
+
+dim(hflights2)
+str(hflights2)
+
+attach(hflights2)
+par(mfcol=c(1,2))
+boxplot(hflights2$ArrDelay)
+boxplot(hflights2$DepDelay)
+```
+
+## Create a vector with the average arrival delay by carrier
+```{r}
+ArrDelayMeans <- aggregate(ArrDelay ~ UniqueCarrier, hflights, mean)
+head(ArrDelayMeans)
+```
+
+## Which carriers have the best on-time performance (recipe from R Graphics Cookbook)?
+```{r}
+ggplot(ArrDelayMeans, aes(x=ArrDelay, y = UniqueCarrier)) + geom_point()          # original attempt
+
+ggplot(ArrDelayMeans, aes(x=ArrDelay, y = reorder(UniqueCarrier, ArrDelay))) +    # order by average delay
+  geom_point(size = 3) +                                                          # use a larger dot
+  theme_bw() +                                                                    # streamline look of grid
+  theme(panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.y = element_line(colour="grey60", linetype="dashed")) 
+```
